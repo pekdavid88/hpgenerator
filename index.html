@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="hu">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -12,8 +13,10 @@
         /* Egyedi stílusok */
         body {
             font-family: 'Inter', sans-serif;
-            background-color: #f7fafc; /* Light gray background */
+            background-color: #f7fafc;
+            /* Light gray background */
         }
+
         .icon {
             display: inline-block;
             stroke-width: 2;
@@ -21,6 +24,7 @@
             stroke-linejoin: round;
             fill: none;
         }
+
         /* Minta CSS-ek a kimenethez (opcionális, de jó látni a struktúrát) */
         .article-bulletin {
             background-color: #f0f7ff;
@@ -29,6 +33,7 @@
             margin: 20px 0;
             border-radius: 4px;
         }
+
         .zarovka100 {
             background-color: #fffff0;
             border: 1px dashed #ffc000;
@@ -37,15 +42,18 @@
             font-size: 0.9em;
             color: #4a4a4a;
         }
+
         .or_advantages {
             background-color: #e6ffed;
             padding: 15px;
             border-radius: 4px;
         }
+
         .or_advantages ul {
             list-style: none;
             padding-left: 0;
         }
+
         .or_advantages ul li:before {
             content: '✓';
             color: #008000;
@@ -54,10 +62,12 @@
             width: 1em;
             margin-left: -1em;
         }
+
         figure {
             margin: 20px 0;
             text-align: center;
         }
+
         figcaption {
             font-style: italic;
             font-size: 0.9em;
@@ -66,6 +76,7 @@
         }
     </style>
 </head>
+
 <body>
 
     <div id="root" class="min-h-screen p-4 md:p-8">
@@ -108,7 +119,7 @@
 	}
 </style>
 `;
-        
+
         // --- Segédfüggvények ---
 
         // Lucide ikonok betöltése
@@ -131,13 +142,15 @@
             error: '',
             showPromptPreview: false,
             // Alapértelmezett a kérés szerint
-            modelName: 'gemini-2.5-flash-preview-09-2025', 
+            modelName: 'gemini-2.5-flash-preview-09-2025',
         };
 
         // Frissített modell lista a kérés szerint
         const models = [
             { name: 'gemini-2.5-flash-preview-09-2025', label: 'Flash 2.5 (Ajánlott, Gyors, Képzett)' },
             { name: 'gemini-2.0-flash', label: 'Flash 2.0 (Alap verzió, Gyors)' },
+            { name: 'gemini-2.5-pro', label: 'Pro 2.5 (Erős, Kiegyensúlyozott)' },
+            { name: 'gemini-3-pro-preview', label: 'Pro 3 (Csúcsmodell - Preview)' },
         ];
 
         // --- Adatfeldolgozás és Logic ---
@@ -147,7 +160,7 @@
             const parsed = lines.map(line => {
                 const trimmed = line.trim();
                 if (!trimmed || trimmed.indexOf('=') === -1) return null;
-                
+
                 const parts = trimmed.split('=');
                 if (parts.length !== 2) return null;
 
@@ -162,7 +175,7 @@
             parsed.sort((a, b) => b.volume - a.volume);
             state.parsedKeywords = parsed;
         }
-        
+
         // Új segédfüggvény a teljes prompt karakterszámának meghatározására
         function getInputCharCount() {
             // Visszaadja a teljes, az API-nak elküldött prompt hosszát
@@ -235,7 +248,7 @@ TECHNIKAI KÖVETELMÉNYEK:
                 return;
             }
             if (state.parsedKeywords.length === 0) {
-                 updateState({ error: 'Kérlek add meg a kulcsszavakat "kulcsszó=szám" formátumban!' });
+                updateState({ error: 'Kérlek add meg a kulcsszavakat "kulcsszó=szám" formátumban!' });
                 return;
             }
             updateState({ error: '', isGenerating: true, generationResult: '' });
@@ -244,7 +257,7 @@ TECHNIKAI KÖVETELMÉNYEK:
 
             try {
                 const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/${state.modelName}:generateContent?key=${state.apiKey}`;
-                
+
                 // Exponenciális visszalépés (Exponential Backoff)
                 const maxRetries = 5;
                 let attempt = 0;
@@ -259,8 +272,8 @@ TECHNIKAI KÖVETELMÉNYEK:
                             body: JSON.stringify({ contents: [{ parts: [{ text: prompt }] }] })
                         });
 
-                        if (response.status !== 429) { 
-                            break; 
+                        if (response.status !== 429) {
+                            break;
                         }
 
                     } catch (fetchError) {
@@ -284,18 +297,18 @@ TECHNIKAI KÖVETELMÉNYEK:
                     } else {
                         message += ` Kérem ellenőrizze az API kulcsot és a számlázást.`;
                     }
-                    
+
                     throw new Error(message);
                 }
 
                 data = await response.json();
-                
+
                 if (data.candidates && data.candidates[0].content) {
                     let generatedText = data.candidates[0].content.parts[0].text;
-                    
+
                     // Tisztítás: eltávolítjuk a potenciális markdown blokkot
                     generatedText = generatedText.replace(/```html/g, '').replace(/```/g, '').trim();
-                    
+
                     // Hozzáadjuk a kötelező CSS/Link blokkot az elejére
                     const finalHtmlOutput = MANDATORY_HTML_PREFIX + generatedText;
 
@@ -318,12 +331,12 @@ TECHNIKAI KÖVETELMÉNYEK:
             textarea.select();
             try {
                 // document.execCommand('copy') is used for compatibility in iframes
-                document.execCommand('copy'); 
+                document.execCommand('copy');
             } catch (err) {
                 console.error('Nem sikerült másolni a vágólapra: ', err);
             }
             document.body.removeChild(textarea);
-            
+
             // Rövid visszajelzés (pl. a másolás gomb animálása)
             const copyBtn = document.getElementById('copy-result-btn');
             if (copyBtn) {
@@ -354,11 +367,11 @@ TECHNIKAI KÖVETELMÉNYEK:
             const root = document.getElementById('root');
             root.innerHTML = '';
             root.appendChild(App());
-            
+
             // Utólagos eseménykezelők hozzáadása a friss DOM elemekhez
             attachEventListeners();
         }
-        
+
         // Fő App Komponens (HTML-t ad vissza)
         function App() {
             const container = document.createElement('div');
@@ -429,10 +442,10 @@ fekete mosogató=200"
                         <div class="bg-white border border-gray-200 rounded-lg p-3 shadow-sm mb-4">
                             <h4 class="text-xs font-bold text-gray-600 uppercase mb-2">Felismerve: ${state.parsedKeywords.length} db</h4>
                             <div class="max-h-24 overflow-y-auto text-sm text-gray-700">
-                                ${state.parsedKeywords.length === 0 
-                                    ? '<p class="text-xs text-gray-400 italic">Nincs érvényes kulcsszó. Kérlek használd a szó=szám formátumot.</p>' 
-                                    : state.parsedKeywords.map(k => `<span class="inline-block bg-purple-100 text-purple-800 rounded-full px-2 py-0.5 text-xs mr-1 mb-1">${k.word} (${k.volume})</span>`).join('')
-                                }
+                                ${state.parsedKeywords.length === 0
+                    ? '<p class="text-xs text-gray-400 italic">Nincs érvényes kulcsszó. Kérlek használd a szó=szám formátumot.</p>'
+                    : state.parsedKeywords.map(k => `<span class="inline-block bg-purple-100 text-purple-800 rounded-full px-2 py-0.5 text-xs mr-1 mb-1">${k.word} (${k.volume})</span>`).join('')
+                }
                             </div>
                         </div>
 
@@ -482,11 +495,10 @@ fekete mosogató=200"
                                     <button
                                         data-model="${model.name}"
                                         title="${model.label}"
-                                        class="model-btn flex-1 text-center py-2 rounded-md text-xs font-semibold transition-colors ${
-                                            state.modelName === model.name 
-                                            ? 'bg-green-600 text-white shadow-md' 
-                                            : 'text-gray-600 hover:bg-gray-200'
-                                        }"
+                                        class="model-btn flex-1 text-center py-2 rounded-md text-xs font-semibold transition-colors ${state.modelName === model.name
+                        ? 'bg-green-600 text-white shadow-md'
+                        : 'text-gray-600 hover:bg-gray-200'
+                    }"
                                     >
                                         ${model.name.replace('gemini-', '').toUpperCase()}
                                     </button>
@@ -506,18 +518,17 @@ fekete mosogató=200"
                         <button 
                             id="generate-btn"
                             ${state.isGenerating || !state.apiKey || !state.categoryTopic || state.parsedKeywords.length === 0 ? 'disabled' : ''}
-                            class="w-full px-6 py-3 rounded-lg font-bold text-lg flex items-center justify-center gap-3 transition-all ${
-                                state.isGenerating 
-                                ? 'bg-gray-400 cursor-wait' 
-                                : (!state.apiKey || !state.categoryTopic || state.parsedKeywords.length === 0)
-                                ? 'bg-gray-200 text-gray-500 cursor-not-allowed'
-                                : 'bg-green-600 hover:bg-green-700 text-white shadow-xl shadow-green-200'
-                            }"
+                            class="w-full px-6 py-3 rounded-lg font-bold text-lg flex items-center justify-center gap-3 transition-all ${state.isGenerating
+                    ? 'bg-gray-400 cursor-wait'
+                    : (!state.apiKey || !state.categoryTopic || state.parsedKeywords.length === 0)
+                        ? 'bg-gray-200 text-gray-500 cursor-not-allowed'
+                        : 'bg-green-600 hover:bg-green-700 text-white shadow-xl shadow-green-200'
+                }"
                         >
-                            ${state.isGenerating 
-                                ? `${getIcon('Loader2', 'w-5 h-5 animate-spin icon')} HTML Leírás Generálása...` 
-                                : `${getIcon('Feather', 'w-5 h-5 icon')} Generálás Indítása`
-                            }
+                            ${state.isGenerating
+                    ? `${getIcon('Loader2', 'w-5 h-5 animate-spin icon')} HTML Leírás Generálása...`
+                    : `${getIcon('Feather', 'w-5 h-5 icon')} Generálás Indítása`
+                }
                         </button>
                         
                         <!-- Prompt Preview toggle, Copy button és Output Counter -->
@@ -602,7 +613,7 @@ fekete mosogató=200"
             if (keywordsInputTextarea) {
                 keywordsInputTextarea.oninput = (e) => updateState({ rawKeywords: e.target.value });
             }
-            
+
             // API Key Input
             const apiKeyInput = document.getElementById('api-key-input');
             if (apiKeyInput) {
@@ -639,11 +650,12 @@ fekete mosogató=200"
         }
 
         // --- Alkalmazás Indítása ---
-        window.onload = function() {
+        window.onload = function () {
             parseKeywords(); // Kezdő kulcsszó elemzés
             render(); // Első renderelés
         };
 
     </script>
 </body>
+
 </html>
